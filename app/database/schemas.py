@@ -12,7 +12,6 @@ class GalleryBase(BaseModel):
 
 class GalleryCreate(GalleryBase):
     user_id: int
-    pass
 
 
 class Gallery(GalleryBase):

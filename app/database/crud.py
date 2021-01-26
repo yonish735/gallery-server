@@ -39,8 +39,7 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 # GALLERIES -----------------------------
 def get_galleries(db: Session):
-    galleries = db.query(models.Gallery).all()
-    return galleries
+    return db.query(models.Gallery).all()
 
 
 def create_gallery(db: Session, gallery: schemas.GalleryCreate):
