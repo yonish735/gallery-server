@@ -20,7 +20,8 @@ def get_all_galleries(db: Session = Depends(database.get_db)):
     return galleries
 
 
-@router.get('/galleries/{user_id}', response_model=Optional[List[schemas.Gallery]])
+@router.get('/galleries/{user_id}',
+            response_model=Optional[List[schemas.Gallery]])
 def get_user_galleries(user_id: int, db: Session = Depends(database.get_db)):
     galleries = crud.get_user_galleries(db, user_id=user_id)
     return galleries

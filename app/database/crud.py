@@ -48,7 +48,7 @@ def get_user_galleries(db: Session, user_id: int):
         models.Gallery.id == user_id).order_by(models.Gallery.id).all()
 
 
-def create_gallery(db: Session, gallery: schemas.Gallery):
+def create_gallery(db: Session, gallery: schemas.GalleryCreate):
     db_gallery = models.Gallery(**gallery.dict())
     db.add(db_gallery)
     db.commit()
