@@ -24,6 +24,10 @@ app.include_router(users.router)
 app.include_router(gallery.router)
 
 
+# TODO: expect a JWT token for each endpoint excluding login
+# TODO: validate expiration time of a JWT token
+
+
 @app.get("/")
 async def homepage():
     return RedirectResponse(url="/docs",

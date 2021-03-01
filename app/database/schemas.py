@@ -25,8 +25,12 @@ class Gallery(GalleryBase):
 class UserBase(BaseModel):
     first_name: str
     last_name: str
-    username: str
     email: str
+
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
 
 
 class UserCreate(UserBase):
@@ -39,3 +43,7 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+
+class TokenResponse(BaseModel):
+    token: str

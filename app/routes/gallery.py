@@ -11,17 +11,27 @@ from ..database import crud, schemas, database
 
 router = APIRouter(
     tags=["gallery"],
-    prefix="/galleries"
 )
 
 
-@router.get('', response_model=Optional[List[schemas.Gallery]])
+@router.get('/galleries', response_model=Optional[List[schemas.Gallery]])
 def get_all_galleries(db: Session = Depends(database.get_db)):
     galleries = crud.get_galleries(db)
     return galleries
 
 
-@router.post('', response_model=schemas.Gallery)
+@router.post('/galleries', response_model=schemas.Gallery)
 def create_gallery(gallery: schemas.GalleryCreate,
                    db: Session = Depends(database.get_db)):
     return crud.create_gallery(db, gallery=gallery)
+
+
+@router.delete('/galleries/{gallery_id}')
+def delete_gallery(gallery_id: int, db: Session = Depends(database.get_db)):
+    crud.delete_gallery(db, gallery_id)
+
+
+@router.patch('/galleries/{gallery_id}', response_model=schemas.Gallery)
+def update_gallery(gallery_id: int, gallery: schemas.Gallery,
+                   db: Session = Depends(database.get_db)):
+    return crud.update_gallery(db, gallery_id, gallery)
