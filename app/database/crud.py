@@ -45,7 +45,7 @@ def get_galleries(db: Session):
 
 def get_user_galleries(db: Session, user_id: int):
     return db.query(models.Gallery).filter(
-        models.Gallery.id == user_id).order_by(models.Gallery.id).all()
+        models.Gallery.user_id == user_id).order_by(models.Gallery.id).all()
 
 
 def create_gallery(db: Session, gallery: schemas.GalleryCreate):
