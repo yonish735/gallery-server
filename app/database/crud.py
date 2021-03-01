@@ -43,6 +43,11 @@ def get_galleries(db: Session):
     return db.query(models.Gallery).order_by(models.Gallery.id).all()
 
 
+def get_user_galleries(db: Session, user_id: int):
+    return db.query(models.Gallery).filter(
+        models.Gallery.id == user_id).order_by(models.Gallery.id).all()
+
+
 def create_gallery(db: Session, gallery: schemas.Gallery):
     db_gallery = models.Gallery(**gallery.dict())
     db.add(db_gallery)
