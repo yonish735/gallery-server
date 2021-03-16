@@ -14,10 +14,17 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Base class for Models
 Base = declarative_base()
 
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+    connected = True
+except:
+    connected = False
 
 
 def get_db():
+    if not connected:
+        yield None
+        return
     db = SessionLocal()
     try:
         yield db

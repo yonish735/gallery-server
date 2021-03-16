@@ -8,6 +8,7 @@ class GalleryBase(BaseModel):
     description: str
     private: bool
     image: Optional[str] = None
+    filename: Optional[str] = None
 
 
 class GalleryCreate(GalleryBase):
@@ -17,6 +18,25 @@ class GalleryCreate(GalleryBase):
 class Gallery(GalleryBase):
     id: int
     user_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class PictureBase(BaseModel):
+    title: str
+    description: str
+    image: Optional[str] = None
+    filename: Optional[str] = None
+
+
+class PictureCreate(PictureBase):
+    gallery_id: int
+
+
+class Picture(PictureBase):
+    id: int
+    gallery_id: int
 
     class Config:
         orm_mode = True
@@ -47,3 +67,7 @@ class User(UserBase):
 
 class TokenResponse(BaseModel):
     token: str
+
+
+class Query(BaseModel):
+    q: str

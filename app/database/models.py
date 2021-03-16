@@ -30,6 +30,7 @@ class Gallery(Base):
     description = Column(String)
     private = Column(Boolean)
     image = Column(String)
+    filename = Column(String)
     user_id = Column(Integer, ForeignKey("users.id"))
 
     user = relationship("User")
@@ -37,3 +38,19 @@ class Gallery(Base):
     def __repr__(self):
         return "<Gallery(userid='%s', id=%d, private='%s', title='%s')>" % (
             self.user.id, self.id, self.private, self.title)
+
+
+class Picture(Base):
+    __tablename__ = "pictures"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    description = Column(String)
+    image = Column(String)
+    filename = Column(String)
+    gallery_id = Column(Integer, ForeignKey("galleries.id"))
+
+    gallery = relationship("Gallery")
+
+    def __repr__(self):
+        return "<Picture(gallery.id='%s', id=%d, title='%s')>" % (
+            self.gallery.id, self.id, self.title)

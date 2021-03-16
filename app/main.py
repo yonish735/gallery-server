@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 
 from .routes import gallery
 from .routes import users
+from .routes import picture
 
 app = FastAPI(
     title="Picture Gallery",
@@ -22,6 +23,7 @@ app.add_middleware(CORSMiddleware,
 
 app.include_router(users.router)
 app.include_router(gallery.router)
+app.include_router(picture.router)
 
 
 # TODO: expect a JWT token for each endpoint excluding login
