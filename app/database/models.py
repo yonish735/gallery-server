@@ -45,6 +45,7 @@ class Picture(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
     description = Column(String)
+    private = Column(Boolean)
     image = Column(String)
     filename = Column(String)
     gallery_id = Column(Integer, ForeignKey("galleries.id"))
@@ -54,3 +55,12 @@ class Picture(Base):
     def __repr__(self):
         return "<Picture(gallery.id='%s', id=%d, title='%s')>" % (
             self.gallery.id, self.id, self.title)
+
+
+class Likes(Base):
+    __tablename__ = "likes"
+    id = Column(Integer, primary_key=True, index=True)
+    requestor_id = Column(Integer)
+    owner_id = Column(Integer, index=True)
+    gallery_id = Column(Integer)
+    picture_id = Column(Integer)

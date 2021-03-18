@@ -20,14 +20,18 @@ def get_user_galleries(user_id: int, db: Session = Depends(database.get_db)):
     return crud_galleries.get_user_galleries(db, user_id=user_id)
 
 
-@router.get('/galleries/public/{pattern}',
+@router.get('/galleries/public/{pattern}/user/{user_id}',
             response_model=Optional[List[schemas.Gallery]])
+# TODO: without current user
 def get_public_galleries(pattern: str,
+                         user_id: int,
                          db: Session = Depends(database.get_db)):
-    return crud_galleries.get_public_galleries(db, pattern=pattern)
+    return crud_galleries.get_public_galleries(db, pattern=pattern,
+                                               user_id=user_id)
 
 
 @router.post('/galleries/suggestions/')
+# TODO: without current user
 def search_gallery(q: Optional[schemas.Query] = None,
                    db: Session = Depends(database.get_db)):
     if q is None:

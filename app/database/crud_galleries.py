@@ -12,11 +12,12 @@ def get_gallery(db: Session, gallery_id: int):
         models.Gallery.id == gallery_id).first()
 
 
-def get_public_galleries(db: Session, pattern: str):
+def get_public_galleries(db: Session, pattern: str, user_id: int):
     return db.query(models.Gallery) \
         .filter(models.Gallery.private == false(),
                 or_(models.Gallery.title.ilike(f'%{pattern}%'),
                     models.Gallery.description.ilike(f'%{pattern}%'))) \
+        .filter(models.Gallery.user_id != user_id) \
         .order_by(models.Gallery.title) \
         .all()
 
@@ -28,6 +29,7 @@ def search_gallery_titles(db: Session, q: schemas.Query):
         .filter(or_(models.Gallery.title.contains(q.q),
                     models.Gallery.description.contains(q.q))) \
         .filter(models.Gallery.private is not True) \
+        .filter(models.Gallery.user_id != q.user_id) \
         .order_by(models.Gallery.title) \
         .all()
     return titles

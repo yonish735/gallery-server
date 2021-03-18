@@ -26,6 +26,7 @@ class Gallery(GalleryBase):
 class PictureBase(BaseModel):
     title: str
     description: str
+    private: bool
     image: Optional[str] = None
     filename: Optional[str] = None
 
@@ -71,3 +72,12 @@ class TokenResponse(BaseModel):
 
 class Query(BaseModel):
     q: str
+    user_id: int
+
+
+class Like(BaseModel):
+    id: int
+    requestor_id: int
+    owner_id: int
+    gallery_id: int
+    picture_id: int

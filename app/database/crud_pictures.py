@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import false
 
 from . import models, schemas
 
@@ -6,8 +7,34 @@ from . import models, schemas
 # PICTURES -----------------------------
 
 
+def like_picture(db: Session, gallery_id: int, picture_id: int,
+                 requestor_id: int):
+    picture = db.query(models.Picture).filter(
+        models.Picture.id == picture_id).first()
+    if picture is None:
+        return {"like": False}
+    owner_id = picture.gallery.user_id
+    like = {
+        "requestor_id": requestor_id,
+        "owner_id": owner_id,
+        "gallery_id": gallery_id,
+        "picture_id": picture_id,
+    }
+    db_like = models.Likes(**like)
+    db.add(db_like)
+    db.commit()
+    return {"like": True}
+
+
 def get_gallery_pictures(db: Session, gallery_id: int):
     return db.query(models.Picture).filter(
+        models.Picture.gallery_id == gallery_id).all()
+
+
+def get_gallery_public_pictures(db: Session, gallery_id: int):
+    return db.query(models.Picture).filter(
+        models.Gallery.private == false(),
+        models.Picture.private == false(),
         models.Picture.gallery_id == gallery_id).all()
 
 

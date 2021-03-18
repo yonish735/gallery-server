@@ -14,11 +14,29 @@ router = APIRouter(
 )
 
 
+@router.get('/pictures/{gallery_id}/like/{picture_id}/user/{requestor_id}')
+def like_gallery_pictures(gallery_id: int,
+                          picture_id: int,
+                          requestor_id: int,
+                          db: Session = Depends(database.get_db)):
+    return crud_pictures.like_picture(db,
+                                      gallery_id=gallery_id,
+                                      picture_id=picture_id,
+                                      requestor_id=requestor_id)
+
+
 @router.get('/pictures/{gallery_id}',
             response_model=Optional[List[schemas.Picture]])
 def get_gallery_pictures(gallery_id: int,
                          db: Session = Depends(database.get_db)):
     return crud_pictures.get_gallery_pictures(db, gallery_id=gallery_id)
+
+
+@router.get('/pictures/public/{gallery_id}',
+            response_model=Optional[List[schemas.Picture]])
+def get_gallery_public_pictures(gallery_id: int,
+                                db: Session = Depends(database.get_db)):
+    return crud_pictures.get_gallery_public_pictures(db, gallery_id=gallery_id)
 
 
 @router.post('/pictures', response_model=schemas.Picture)
