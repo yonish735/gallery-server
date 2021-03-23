@@ -13,25 +13,55 @@ def get_gallery(db: Session, gallery_id: int):
 
 
 def get_public_galleries(db: Session, pattern: str, user_id: int):
-    return db.query(models.Gallery) \
+    pattern = pattern.lower()
+    galleries = db.query(models.Gallery) \
         .filter(models.Gallery.private == false(),
                 or_(models.Gallery.title.ilike(f'%{pattern}%'),
                     models.Gallery.description.ilike(f'%{pattern}%'))) \
         .filter(models.Gallery.user_id != user_id) \
         .order_by(models.Gallery.title) \
         .all()
+    if galleries is None:
+        galleries = db.query(models.Gallery) \
+            .filter(models.Gallery.private == false(),
+                    (models.Gallery.title + ": " + models.Gallery.description).
+                    contains(pattern),
+                    ) \
+            .filter(models.Gallery.user_id != user_id) \
+            .order_by(models.Gallery.title) \
+            .all()
+    return galleries
 
 
 def search_gallery_titles(db: Session, q: schemas.Query):
+    user_id = q.user_id
+    q = q.q.lower()
     titles = db.query(models.Gallery) \
         .with_entities(models.Gallery.title + ": " +
                        models.Gallery.description) \
-        .filter(or_(models.Gallery.title.contains(q.q),
-                    models.Gallery.description.contains(q.q))) \
+        .filter(
+        or_(
+            models.Gallery.title.contains(q),
+            models.Gallery.description.contains(q)
+        )
+    ) \
         .filter(models.Gallery.private is not True) \
-        .filter(models.Gallery.user_id != q.user_id) \
+        .filter(models.Gallery.user_id != user_id) \
         .order_by(models.Gallery.title) \
         .all()
+    if titles is None:
+        titles = db.query(models.Gallery) \
+            .with_entities(models.Gallery.title + ": " +
+                           models.Gallery.description) \
+            .filter(
+            (models.Gallery.title + ": " + models.Gallery.description).
+                contains(q),
+        ) \
+            .filter(models.Gallery.private is not True) \
+            .filter(models.Gallery.user_id != user_id) \
+            .order_by(models.Gallery.title) \
+            .all()
+
     return titles
 
 
