@@ -1,10 +1,6 @@
-import io
 from typing import List, Optional
 
-from PIL import Image
-from fastapi import APIRouter, Cookie, Form, status, UploadFile, File, Depends
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
-from starlette.exceptions import HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from ..database import crud_galleries, schemas, database
@@ -20,13 +16,27 @@ def get_user_galleries(user_id: int, db: Session = Depends(database.get_db)):
     return crud_galleries.get_user_galleries(db, user_id=user_id)
 
 
-@router.get('/galleries/public/{user_id}/{pattern}',
+@router.get('/galleries/public/{user_id}/{pattern}/{gallery_id}',
             response_model=Optional[List[schemas.Gallery]])
 def get_public_galleries(pattern: str,
+                         gallery_id: int,
                          user_id: int,
                          db: Session = Depends(database.get_db)):
-    return crud_galleries.get_public_galleries(db, pattern=pattern,
-                                               user_id=user_id)
+    if user_id != 0:
+        return crud_galleries.get_public_galleries(db, pattern=pattern,
+                                                   gallery_id=gallery_id,
+                                                   user_id=user_id)
+    else:
+        return crud_galleries.get_public_galleries_nouser(db, pattern=pattern,
+                                                   gallery_id=gallery_id)
+
+
+
+@router.get('/galleries/public/one/{gallery_id}',
+            response_model=Optional[List[schemas.Gallery]])
+def get_public_gallery(gallery_id: int,
+                       db: Session = Depends(database.get_db)):
+    return crud_galleries.get_public_gallery(db, gallery_id=gallery_id)
 
 
 @router.get('/galleries/public/{user_id}',
@@ -37,7 +47,7 @@ def get_public_galleries_no_pattern(user_id: int,
                                                user_id=user_id)
 
 
-@router.post('/galleries/suggestions/')
+@router.post('/galleries/suggestions')
 def search_gallery(q: Optional[schemas.Query] = None,
                    db: Session = Depends(database.get_db)):
     if q is None:

@@ -12,8 +12,7 @@ def is_user_password_correct(user_password: str, password: str):
 
 
 def get_user_by_email(db: Session, email: str):
-    user = db.query(models.User).filter(models.User.email == email).first()
-    return user
+    return db.query(models.User).filter(models.User.email == email).first()
 
 
 def get_password_hash(password):

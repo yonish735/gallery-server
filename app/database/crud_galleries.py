@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, false
+from sqlalchemy import or_, false, func
 
 from . import models, schemas
 
@@ -12,24 +12,47 @@ def get_gallery(db: Session, gallery_id: int):
         models.Gallery.id == gallery_id).first()
 
 
-def get_public_galleries(db: Session, pattern: str, user_id: int):
+def get_public_galleries(db: Session, pattern: str, gallery_id: int,
+                         user_id: int):
+    if gallery_id is not None and gallery_id != 0:
+        return db.query(models.Gallery) \
+            .filter(models.Gallery.private == false(),
+                    models.Gallery.id == gallery_id).all()
+
     pattern = pattern.lower()
     galleries = db.query(models.Gallery) \
         .filter(models.Gallery.private == false(),
-                or_(models.Gallery.title.ilike(f'%{pattern}%'),
-                    models.Gallery.description.ilike(f'%{pattern}%'))) \
-        .filter(models.Gallery.user_id != user_id) \
+                models.Gallery.user_id != user_id,
+                or_(
+                    or_(models.Gallery.title.ilike(f'%{pattern}%'),
+                        models.Gallery.description.ilike(f'%{pattern}%')),
+                    func.lower((models.Gallery.title + ": " +
+                                models.Gallery.description)) == pattern
+                ),
+                ) \
         .order_by(models.Gallery.title) \
         .all()
-    if galleries is None:
-        galleries = db.query(models.Gallery) \
+    return galleries
+
+
+def get_public_galleries_nouser(db: Session, pattern: str, gallery_id: int):
+    if gallery_id is not None and gallery_id != 0:
+        return db.query(models.Gallery) \
             .filter(models.Gallery.private == false(),
-                    (models.Gallery.title + ": " + models.Gallery.description).
-                    contains(pattern),
-                    ) \
-            .filter(models.Gallery.user_id != user_id) \
-            .order_by(models.Gallery.title) \
-            .all()
+                    models.Gallery.id == gallery_id).all()
+
+    pattern = pattern.lower()
+    galleries = db.query(models.Gallery) \
+        .filter(models.Gallery.private == false(),
+                or_(
+                    or_(models.Gallery.title.ilike(f'%{pattern}%'),
+                        models.Gallery.description.ilike(f'%{pattern}%')),
+                    func.lower((models.Gallery.title + ": " +
+                                models.Gallery.description)) == pattern
+                ),
+                ) \
+        .order_by(models.Gallery.title) \
+        .all()
     return galleries
 
 
@@ -38,31 +61,31 @@ def search_gallery_titles(db: Session, q: schemas.Query):
     q = q.q.lower()
     titles = db.query(models.Gallery) \
         .with_entities(models.Gallery.title + ": " +
-                       models.Gallery.description) \
+                       models.Gallery.description,
+                       models.Gallery.id) \
         .filter(
+        models.Gallery.private == false(),
+        models.Gallery.user_id != user_id,
         or_(
-            models.Gallery.title.contains(q),
-            models.Gallery.description.contains(q)
+            or_(
+                models.Gallery.title.contains(q),
+                models.Gallery.description.contains(q)
+            ),
+            (models.Gallery.title + ": " +
+             models.Gallery.description).contains(q)
         )
     ) \
-        .filter(models.Gallery.private is not True) \
-        .filter(models.Gallery.user_id != user_id) \
         .order_by(models.Gallery.title) \
         .all()
-    if titles is None:
-        titles = db.query(models.Gallery) \
-            .with_entities(models.Gallery.title + ": " +
-                           models.Gallery.description) \
-            .filter(
-            (models.Gallery.title + ": " + models.Gallery.description).
-                contains(q),
-        ) \
-            .filter(models.Gallery.private is not True) \
-            .filter(models.Gallery.user_id != user_id) \
-            .order_by(models.Gallery.title) \
-            .all()
-
     return titles
+
+
+def get_public_gallery(db: Session, gallery_id: int):
+    return db.query(models.Gallery) \
+        .filter(
+        models.Gallery.private == false(),
+        models.Gallery.id == gallery_id
+    ).all()
 
 
 def get_user_galleries(db: Session, user_id: int):

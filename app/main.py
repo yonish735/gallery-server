@@ -1,13 +1,11 @@
-from typing import Optional
-
 import uvicorn
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import RedirectResponse
 
-from .routes import gallery
+from .routes import galleries
 from .routes import users
-from .routes import picture
+from .routes import pictures
 
 app = FastAPI(
     title="Picture Gallery",
@@ -22,8 +20,8 @@ app.add_middleware(CORSMiddleware,
                    )
 
 app.include_router(users.router)
-app.include_router(gallery.router)
-app.include_router(picture.router)
+app.include_router(galleries.router)
+app.include_router(pictures.router)
 
 
 # TODO: expect a JWT token for each endpoint excluding login

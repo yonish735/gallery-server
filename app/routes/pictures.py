@@ -14,6 +14,7 @@ router = APIRouter(
 )
 
 
+# TODO rename like to download
 @router.get('/pictures/{gallery_id}/like/{picture_id}/user/{requestor_id}')
 def like_gallery_pictures(gallery_id: int,
                           picture_id: int,

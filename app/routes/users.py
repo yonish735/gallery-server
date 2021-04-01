@@ -2,7 +2,6 @@ import os
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
-from typing import Dict, Any
 
 from sqlalchemy.orm import Session
 
