@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -10,6 +11,10 @@ import jwt
 from ..database import crud_users, schemas, database
 
 JWT_SECRET = os.getenv("JWT_SECRET")
+
+# Format of password and email
+pwd_re = re.compile(r'^[\d\w]{6}$')
+email_re = re.compile(r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$')
 
 router = APIRouter(
     tags=["users"],
@@ -38,12 +43,13 @@ def register(user: schemas.UserCreate,
     db_user = crud_users.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=409, detail="User already exists")
-    # TODO: valid format of password (letters and numbers)
-    if len(user.password) < 6:
+    if not pwd_re.match(user.password):
         raise HTTPException(status_code=400,
                             detail="Password should be at lease six numbers"
                                    " and letters")
-    # TODO:  valid format of email
+    if not email_re.match(user.email):
+        raise HTTPException(status_code=400,
+                            detail="Invalid email")
 
     hashed_password = crud_users.get_password_hash(user.password)
     db_user = crud_users.create_user(db=db, user=user,

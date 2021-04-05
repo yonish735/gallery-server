@@ -14,16 +14,15 @@ router = APIRouter(
 )
 
 
-# TODO rename like to download
-@router.get('/pictures/{gallery_id}/like/{picture_id}/user/{requestor_id}')
-def like_gallery_pictures(gallery_id: int,
-                          picture_id: int,
-                          requestor_id: int,
-                          db: Session = Depends(database.get_db)):
-    return crud_pictures.like_picture(db,
-                                      gallery_id=gallery_id,
-                                      picture_id=picture_id,
-                                      requestor_id=requestor_id)
+@router.get('/pictures/{gallery_id}/download/{picture_id}/user/{requestor_id}')
+def download_gallery_pictures(gallery_id: int,
+                              picture_id: int,
+                              requestor_id: int,
+                              db: Session = Depends(database.get_db)):
+    return crud_pictures.download_picture(db,
+                                          gallery_id=gallery_id,
+                                          picture_id=picture_id,
+                                          requestor_id=requestor_id)
 
 
 @router.get('/pictures/{gallery_id}',

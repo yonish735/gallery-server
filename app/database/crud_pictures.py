@@ -7,23 +7,23 @@ from . import models, schemas
 # PICTURES -----------------------------
 
 
-def like_picture(db: Session, gallery_id: int, picture_id: int,
-                 requestor_id: int):
+def download_picture(db: Session, gallery_id: int, picture_id: int,
+                     requestor_id: int):
     picture = db.query(models.Picture).filter(
         models.Picture.id == picture_id).first()
     if picture is None:
-        return {"like": False}
+        return {"download": False}
     owner_id = picture.gallery.user_id
-    like = {
+    download = {
         "requestor_id": requestor_id,
         "owner_id": owner_id,
         "gallery_id": gallery_id,
         "picture_id": picture_id,
     }
-    db_like = models.Likes(**like)
-    db.add(db_like)
+    db_download = models.Downloads(**download)
+    db.add(db_download)
     db.commit()
-    return {"like": True}
+    return {"download": True}
 
 
 def get_gallery_pictures(db: Session, gallery_id: int):

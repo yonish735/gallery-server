@@ -75,7 +75,7 @@ class Query(BaseModel):
     user_id: int
 
 
-class Like(BaseModel):
+class Download(BaseModel):
     id: int
     requestor_id: int
     owner_id: int

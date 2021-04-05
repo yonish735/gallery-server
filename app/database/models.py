@@ -57,8 +57,8 @@ class Picture(Base):
             self.gallery.id, self.id, self.title)
 
 
-class Likes(Base):
-    __tablename__ = "likes"
+class Downloads(Base):
+    __tablename__ = "downloads"
     id = Column(Integer, primary_key=True, index=True)
     requestor_id = Column(Integer)
     owner_id = Column(Integer, index=True)
