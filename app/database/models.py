@@ -12,6 +12,7 @@ class User(Base):
     last_name = Column(String)
     email = Column(String)
     hashed_password = Column(String)
+    token = Column(String)
 
     galleries = relationship("Gallery", back_populates='user',
                              cascade="all, delete, delete-orphan")

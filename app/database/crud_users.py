@@ -1,3 +1,5 @@
+import secrets
+
 from sqlalchemy.orm import Session
 from passlib.hash import sha256_crypt
 
@@ -29,3 +31,23 @@ def create_user(db: Session, user: schemas.UserCreate, hashed_password: str):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+def update_password(db: Session, user: schemas.UserForgotPassword,
+                    hashed_password: str):
+    db_user = get_user_by_email(db, email=user.email)
+    db_user.hashed_password = hashed_password
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+def generate_token(db: Session, email: str):
+    db_user = get_user_by_email(db, email=email)
+    if not db_user:
+        return None
+    token = secrets.token_hex(16)
+    db_user.token = token
+    db.commit()
+    db.refresh(db_user)
+    return token

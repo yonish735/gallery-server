@@ -64,6 +64,7 @@ def update_picture(db: Session, picture_id: int, picture: schemas.Picture):
     if not db_picture:
         return NameError
     db_picture.title = picture.title
+    db_picture.description = picture.description
     db_picture.image = picture.image
     db_picture.filename = picture.filename
     db.commit()

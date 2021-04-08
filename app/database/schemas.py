@@ -58,6 +58,12 @@ class UserCreate(UserBase):
     password: str
 
 
+class UserForgotPassword(BaseModel):
+    email: str
+    password: str
+    token: str
+
+
 class User(UserBase):
     id: int
     galleries: List[Gallery] = []
