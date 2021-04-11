@@ -26,6 +26,7 @@ app.include_router(pictures.router)
 
 # TODO: expect a JWT token for each endpoint excluding login
 # TODO: validate expiration time of a JWT token
+# TODO: send emails
 
 
 @app.get("/")

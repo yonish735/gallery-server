@@ -1,8 +1,10 @@
 import os
 import re
 from datetime import datetime, timedelta
+from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
 
 from sqlalchemy.orm import Session
 
@@ -11,6 +13,9 @@ import jwt
 from ..database import crud_users, schemas, database
 
 JWT_SECRET = os.getenv("JWT_SECRET")
+ALGORITHM = os.getenv("JWT_ALG")
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # Format of password and email
 pwd_re = re.compile(r'^\w{6,}$')
@@ -22,8 +27,11 @@ router = APIRouter(
 )
 
 
-def encode(user: schemas.User):
-    expire = datetime.utcnow() + timedelta(minutes=15)
+def encode(user: schemas.User, expires_delta: Optional[timedelta] = None):
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
     return jwt.encode(
         {
             "id": user.id,
@@ -33,7 +41,7 @@ def encode(user: schemas.User):
             "exp": expire,
         },
         JWT_SECRET,
-        algorithm="HS256",
+        algorithm=ALGORITHM,
     )
 
 
@@ -121,3 +129,10 @@ def send_token(email: str, db: Session = Depends(database.get_db)):
         print(token)
     # hide problems
     return {"ok": True}
+
+
+@router.get("/download/{user_id}", response_model=List[schemas.Download])
+def get_download_requests(user_id: str,
+                          db: Session = Depends(database.get_db)):
+    return crud_users.download_requests(db, user_id=user_id)
+

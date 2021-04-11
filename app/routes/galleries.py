@@ -1,9 +1,11 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
+from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from ..database import crud_galleries, schemas, database
+from .users import JWT_SECRET, ALGORITHM, oauth2_scheme
 
 router = APIRouter(
     tags=["gallery"],
@@ -12,7 +14,24 @@ router = APIRouter(
 
 @router.get('/galleries/{user_id}',
             response_model=Optional[List[schemas.Gallery]])
-def get_user_galleries(user_id: int, db: Session = Depends(database.get_db)):
+def get_user_galleries(user_id: int,
+                       token: str = Depends(oauth2_scheme),
+                       db: Session = Depends(database.get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
+        username: str = payload.get("email")
+        if username is None:
+            raise credentials_exception
+        token_data = schemas.TokenData(username=username)
+        # TODO: check user_id
+    except JWTError:
+        raise credentials_exception
+
     return crud_galleries.get_user_galleries(db, user_id=user_id)
 
 

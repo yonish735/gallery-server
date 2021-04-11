@@ -51,3 +51,10 @@ def generate_token(db: Session, email: str):
     db.commit()
     db.refresh(db_user)
     return token
+
+
+def download_requests(db: Session, user_id: str):
+    requests = db.query(models.Downloads).filter(
+        models.Downloads.owner_id == user_id).all()
+    # TODO: add picture image
+    return requests
