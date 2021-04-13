@@ -1,21 +1,10 @@
-import os
 import re
-from datetime import datetime, timedelta
-from typing import Optional, List
-
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
-
 from sqlalchemy.orm import Session
 
-import jwt
-
 from ..database import crud_users, schemas, database
-
-JWT_SECRET = os.getenv("JWT_SECRET")
-ALGORITHM = os.getenv("JWT_ALG")
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+from .token import encode_token, oauth2_scheme, verify_token
 
 # Format of password and email
 pwd_re = re.compile(r'^\w{6,}$')
@@ -25,24 +14,6 @@ router = APIRouter(
     tags=["users"],
     prefix="/users"
 )
-
-
-def encode(user: schemas.User, expires_delta: Optional[timedelta] = None):
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    return jwt.encode(
-        {
-            "id": user.id,
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "exp": expire,
-        },
-        JWT_SECRET,
-        algorithm=ALGORITHM,
-    )
 
 
 @router.post("/signUp", response_model=schemas.TokenResponse)
@@ -66,7 +37,7 @@ def register(user: schemas.UserCreate,
         raise HTTPException(status_code=500, detail="Something went wrong")
 
     try:
-        encoded_jwt = encode(db_user)
+        encoded_jwt = encode_token(db_user)
     except:
         raise HTTPException(status_code=500, detail="Something went wrong")
 
@@ -88,7 +59,7 @@ def signin(user: schemas.UserLogin,
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
     try:
-        encoded_jwt = encode(db_user)
+        encoded_jwt = encode_token(db_user)
     except:
         raise HTTPException(status_code=500, detail="Something went wrong")
 
@@ -112,7 +83,7 @@ def forgot(user: schemas.UserForgotPassword,
         raise HTTPException(status_code=500, detail="Something went wrong")
 
     try:
-        encoded_jwt = encode(db_user)
+        encoded_jwt = encode_token(db_user)
     except:
         raise HTTPException(status_code=500, detail="Something went wrong")
 
@@ -131,8 +102,9 @@ def send_token(email: str, db: Session = Depends(database.get_db)):
     return {"ok": True}
 
 
-@router.get("/download/{user_id}", response_model=List[schemas.Download])
-def get_download_requests(user_id: str,
+@router.get("/download", response_model=List[schemas.Download])
+def get_download_requests(
+                          token: str = Depends(oauth2_scheme),
                           db: Session = Depends(database.get_db)):
+    _, user_id = verify_token(token)
     return crud_users.download_requests(db, user_id=user_id)
-
