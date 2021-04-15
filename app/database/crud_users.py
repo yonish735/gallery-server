@@ -56,5 +56,5 @@ def generate_token(db: Session, email: str):
 def download_requests(db: Session, user_id: str):
     requests = db.query(models.Downloads).filter(
         models.Downloads.owner_id == user_id).all()
-    # TODO: add picture image
+    # TODO: add picture image for preview
     return requests

@@ -51,7 +51,7 @@ def signin(user: schemas.UserLogin,
            db: Session = Depends(database.get_db)):
     db_user = crud_users.get_user_by_email(db, email=user.email)
     if not db_user:
-        raise HTTPException(status_code=404, detail="User doesn't exist")
+        raise HTTPException(status_code=404, detail="Invalid credentials")
 
     is_password_correct = crud_users.is_user_password_correct(
         db_user.hashed_password, user.password)
@@ -73,7 +73,7 @@ def forgot(user: schemas.UserForgotPassword,
            db: Session = Depends(database.get_db)):
     db_user = crud_users.get_user_by_email(db, email=user.email)
     if not db_user:
-        raise HTTPException(status_code=404, detail="User doesn't exist")
+        raise HTTPException(status_code=404, detail="Invalid credentials")
     if db_user.token != user.token:
         raise HTTPException(status_code=400, detail="Invalid token")
     hashed_password = crud_users.get_password_hash(user.password)

@@ -72,6 +72,13 @@ class User(UserBase):
         orm_mode = True
 
 
+class GalleryWithUser(Gallery):
+    user: User
+
+    class Config:
+        orm_mode = True
+
+
 class TokenResponse(BaseModel):
     token: str
 

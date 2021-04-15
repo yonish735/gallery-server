@@ -21,13 +21,15 @@ def get_user_galleries(user_id: int,
 
 
 @router.get('/galleries/public/{user_id}/{pattern}/{gallery_id}',
-            response_model=Optional[List[schemas.Gallery]])
+            response_model=Optional[List[schemas.GalleryWithUser]])
 def get_public_galleries(pattern: str,
                          gallery_id: int,
                          user_id: int,
                          token: str = Depends(oauth2_scheme),
                          db: Session = Depends(database.get_db)):
-    verify_token(token)
+    _, id = verify_token(token)
+    if user_id == 0:
+        user_id = id
     if user_id != 0:
         return crud_galleries.get_public_galleries(db, pattern=pattern,
                                                    gallery_id=gallery_id,
@@ -40,7 +42,7 @@ def get_public_galleries(pattern: str,
 
 
 @router.get('/galleries/public/one/{gallery_id}',
-            response_model=Optional[List[schemas.Gallery]])
+            response_model=Optional[List[schemas.GalleryWithUser]])
 def get_public_gallery(gallery_id: int,
                        token: str = Depends(oauth2_scheme),
                        db: Session = Depends(database.get_db)):
