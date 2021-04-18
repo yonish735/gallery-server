@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from ..database import crud_users, schemas, database
 from .token import encode_token, oauth2_scheme, verify_token
 
+from ..misc import email as smtp
+
 # Format of password and email
 pwd_re = re.compile(r'^\w{6,}$')
 email_re = re.compile(r'^\w+@[a-zA-Z0-9_.]+$')
@@ -96,8 +98,7 @@ def forgot(user: schemas.UserForgotPassword,
 def send_token(email: str, db: Session = Depends(database.get_db)):
     token = crud_users.generate_token(db, email=email)
     if token is not None:
-        # TODO: send token
-        print(token)
+        smtp.send_token(email, token)
     # hide problems
     return {"ok": True}
 
