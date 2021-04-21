@@ -76,12 +76,13 @@ def create_gallery(gallery: schemas.GalleryCreate,
     return crud_galleries.create_gallery(db, gallery=gallery)
 
 
-@router.delete('/galleries/{gallery_id}')
+@router.delete('/galleries/{gallery_id}', response_model=str)
 def delete_gallery(gallery_id: int,
                    token: str = Depends(oauth2_scheme),
                    db: Session = Depends(database.get_db)):
     verify_token(token)
     crud_galleries.delete_gallery(db, gallery_id)
+    return gallery_id
 
 
 @router.patch('/galleries/{gallery_id}', response_model=schemas.Gallery)

@@ -105,7 +105,21 @@ def send_token(email: str, db: Session = Depends(database.get_db)):
 
 @router.get("/download", response_model=List[schemas.Download])
 def get_download_requests(
-                          token: str = Depends(oauth2_scheme),
-                          db: Session = Depends(database.get_db)):
+        token: str = Depends(oauth2_scheme),
+        db: Session = Depends(database.get_db)):
     _, user_id = verify_token(token)
     return crud_users.download_requests(db, user_id=user_id)
+
+
+@router.get("/download/permit/{req_id}/{permit}")
+def permit_download_request(
+        req_id: str,
+        permit: str,
+        token: str = Depends(oauth2_scheme),
+        db: Session = Depends(database.get_db)):
+    email, user_id = verify_token(token)
+    user = crud_users.get_user_by_email(db, email)
+    request = crud_users.download_find(db, req_id=req_id, user_id=user_id)
+    if user is not None and request is not None and permit == 'true':
+        smtp.send_picture(request, user)
+    return {"ok": True}

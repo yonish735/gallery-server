@@ -30,13 +30,13 @@ def verify_token(token: str):
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM],
                              options={"verify_exp": True})
-        username: str = payload.get("email")
-        if username is None:
+        email: str = payload.get("email")
+        if email is None:
             raise credentials_exception
         user_id: int = payload.get("id")
         if user_id is None:
             raise credentials_exception
-        return username, user_id
+        return email, user_id
     except jwt.ExpiredSignatureError:
         raise expired_signature
     except JWTError:

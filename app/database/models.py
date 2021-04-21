@@ -32,8 +32,11 @@ class Gallery(Base):
     private = Column(Boolean)
     image = Column(String)
     filename = Column(String)
-    user_id = Column(Integer, ForeignKey("users.id"))
 
+    pictures = relationship("Picture", back_populates='gallery',
+                            cascade="all, delete, delete-orphan")
+
+    user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User")
 
     def __repr__(self):
@@ -58,10 +61,13 @@ class Picture(Base):
             self.gallery.id, self.id, self.title)
 
 
-class Downloads(Base):
+class Download(Base):
     __tablename__ = "downloads"
     id = Column(Integer, primary_key=True, index=True)
-    requestor_id = Column(Integer)
+    requestor_id = Column(Integer, ForeignKey("users.id"))
+    requestor = relationship("User")
     owner_id = Column(Integer, index=True)
-    gallery_id = Column(Integer)
-    picture_id = Column(Integer)
+    gallery_id = Column(Integer, ForeignKey("galleries.id"))
+    gallery = relationship("Gallery")
+    picture_id = Column(Integer, ForeignKey("pictures.id"))
+    picture = relationship("Picture")

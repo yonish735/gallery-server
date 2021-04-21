@@ -49,12 +49,13 @@ def create_picture(picture: schemas.PictureCreate,
     return crud_pictures.create_picture(db, picture=picture)
 
 
-@router.delete('/pictures/{picture_id}')
+@router.delete('/pictures/{picture_id}', response_model=str)
 def delete_gallery(picture_id: int,
                    token: str = Depends(oauth2_scheme),
                    db: Session = Depends(database.get_db)):
     verify_token(token)
     crud_pictures.delete_picture(db, picture_id)
+    return picture_id
 
 
 @router.patch('/pictures/{picture_id}', response_model=schemas.Picture)

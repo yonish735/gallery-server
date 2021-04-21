@@ -91,9 +91,12 @@ class Query(BaseModel):
 class Download(BaseModel):
     id: int
     requestor_id: int
+    requestor: User
     owner_id: int
     gallery_id: int
+    gallery: Gallery
     picture_id: int
+    picture: Picture
 
     class Config:
         orm_mode = True

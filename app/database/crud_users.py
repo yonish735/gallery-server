@@ -54,7 +54,17 @@ def generate_token(db: Session, email: str):
 
 
 def download_requests(db: Session, user_id: str):
-    requests = db.query(models.Downloads).filter(
-        models.Downloads.owner_id == user_id).all()
-    # TODO: add picture image for preview
+    requests = db.query(models.Download).filter(
+        models.Download.owner_id == user_id).all()
     return requests
+
+
+def download_find(db: Session, req_id: str, user_id: str):
+    request = db.query(models.Download).filter(
+        models.Download.owner_id == user_id,
+        models.Download.id == req_id).first()
+    if not request:
+        return None
+    db.delete(request)
+    db.commit()
+    return request
