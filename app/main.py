@@ -1,4 +1,5 @@
 import uvicorn
+import os
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
@@ -29,6 +30,7 @@ async def homepage():
     return RedirectResponse(url="/docs",
                             status_code=status.HTTP_302_FOUND)
 
+port = int(os.environ.get('PORT', 8000))
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=port)
