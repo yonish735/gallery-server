@@ -24,9 +24,6 @@ app.include_router(galleries.router)
 app.include_router(pictures.router)
 
 
-# TODO: send emails
-
-
 @app.get("/")
 async def homepage():
     return RedirectResponse(url="/docs",

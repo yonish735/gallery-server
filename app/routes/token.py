@@ -1,6 +1,5 @@
 import os
 import jwt
-from jose import JWTError
 from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
@@ -39,7 +38,7 @@ def verify_token(token: str):
         return email, user_id
     except jwt.ExpiredSignatureError:
         raise expired_signature
-    except JWTError:
+    except:
         raise credentials_exception
 
 
