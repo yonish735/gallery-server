@@ -20,10 +20,10 @@ def download_picture(db: Session, gallery_id: int, picture_id: int,
         "gallery_id": gallery_id,
         "picture_id": picture_id,
     }
-    db_download = models.Downloads(**download)
+    db_download = models.Download(**download)
     db.add(db_download)
     db.commit()
-    return {"download": True}
+    return {"pictureId": picture_id}
 
 
 def get_gallery_pictures(db: Session, gallery_id: int):

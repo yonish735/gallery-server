@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, false, func
+from fastapi import HTTPException
 
 from . import models, schemas
 
@@ -10,6 +11,11 @@ from . import models, schemas
 def get_gallery(db: Session, gallery_id: int):
     return db.query(models.Gallery).filter(
         models.Gallery.id == gallery_id).first()
+
+
+def get_gallery_by_title(db: Session, title: str):
+    return db.query(models.Gallery).filter(
+        models.Gallery.title == title).first()
 
 
 def get_public_galleries(db: Session, pattern: str, gallery_id: int,
@@ -33,6 +39,14 @@ def get_public_galleries(db: Session, pattern: str, gallery_id: int,
         .order_by(models.Gallery.title) \
         .all()
     return galleries
+
+
+def get_all_public_galleries(db: Session, user_id: int):
+    return db.query(models.Gallery) \
+        .filter(models.Gallery.private == false(),
+                models.Gallery.user_id != user_id) \
+        .order_by(models.Gallery.title) \
+        .all()
 
 
 def get_public_galleries_nouser(db: Session, pattern: str, gallery_id: int):
@@ -90,10 +104,13 @@ def get_public_gallery(db: Session, gallery_id: int):
 
 def get_user_galleries(db: Session, user_id: int):
     return db.query(models.Gallery).filter(
-        models.Gallery.user_id == user_id).order_by(models.Gallery.id).all()
+        models.Gallery.user_id == user_id).order_by(models.Gallery.title).all()
 
 
 def create_gallery(db: Session, gallery: schemas.GalleryCreate):
+    db_gallery = get_gallery_by_title(db, gallery.title)
+    if db_gallery:
+        return NameError
     db_gallery = models.Gallery(**gallery.dict())
     db.add(db_gallery)
     db.commit()

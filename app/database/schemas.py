@@ -1,5 +1,5 @@
-from typing import List, Optional
-
+from typing import List, Optional, Tuple
+from datetime import datetime
 from pydantic import BaseModel
 
 
@@ -90,6 +90,7 @@ class Query(BaseModel):
 
 class Download(BaseModel):
     id: int
+    created_at: datetime
     requestor_id: int
     requestor: User
     owner_id: int
@@ -109,3 +110,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: Optional[str] = None
+
+
+class Suggestion(BaseModel):
+    suggestions: List[Tuple[str, int]]

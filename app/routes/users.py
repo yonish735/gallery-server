@@ -26,7 +26,7 @@ def register(user: schemas.UserCreate,
         raise HTTPException(status_code=409, detail="User already exists")
     if not pwd_re.match(user.password):
         raise HTTPException(status_code=400,
-                            detail="Password should be at lease six numbers"
+                            detail="Password should be at least six numbers"
                                    " and letters")
     if not email_re.match(user.email):
         raise HTTPException(status_code=400,
