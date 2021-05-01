@@ -14,7 +14,7 @@ JWT_SECRET = os.getenv("JWT_SECRET")
 ALGORITHM = os.getenv("JWT_ALG")
 
 # Expect each request to have header:
-# Authentication: Bearer <JWT token>
+# Authorization: Bearer <JWT token>
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # Exception for wrong credentials
