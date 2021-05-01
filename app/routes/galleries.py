@@ -54,17 +54,32 @@ def get_public_galleries_all(
     return []
 
 
-@router.get('/public/{user_id}/{pattern}/{gallery_id}',
+@router.get('/public/g/{gallery_id}',
+            response_model=Optional[List[schemas.GalleryWithUser]])
+def get_public_galleries_by_id(gallery_id: int,
+                               token: str = Depends(oauth2_scheme),
+                               db: Session = Depends(database.get_db)):
+    """
+    Get public galleries for a user according to gallery id
+    :param gallery_id: id of gallery
+    :param token: JWT token
+    :param db: database session
+    :return: galleries
+    """
+    # Verify that user is logged in
+    _, _id = verify_token(token)
+    return galleries.get_public_galleries_by_id(db, gallery_id=gallery_id)
+
+
+@router.get('/public/{user_id}/p/{pattern}',
             response_model=Optional[List[schemas.GalleryWithUser]])
 def get_public_galleries(pattern: str,
-                         gallery_id: int,
                          user_id: int,
                          token: str = Depends(oauth2_scheme),
                          db: Session = Depends(database.get_db)):
     """
     Get public galleries for a user according to pattern or gallery id
     :param pattern: pattern to search for
-    :param gallery_id: id of gallery
     :param user_id: id of user
     :param token: JWT token
     :param db: database session
@@ -77,32 +92,10 @@ def get_public_galleries(pattern: str,
         user_id = _id
     if user_id != 0:
         # if user is defined return public galleries of the user
-        return galleries.get_public_galleries(db, pattern=pattern,
-                                              gallery_id=gallery_id,
-                                              user_id=user_id)
+        return galleries.get_public_galleries_by_pattern(db, pattern=pattern, user_id=user_id)
     else:
         # otherwise return public galleries of all users
-        return galleries.get_public_galleries_nouser(
-            db,
-            pattern=pattern,
-            gallery_id=gallery_id)
-
-
-@router.get('/public/one/{gallery_id}',
-            response_model=Optional[List[schemas.GalleryWithUser]])
-def get_public_gallery(gallery_id: int,
-                       token: str = Depends(oauth2_scheme),
-                       db: Session = Depends(database.get_db)):
-    """
-    Get public gallery by id
-    :param gallery_id: id of gallery
-    :param token: JWT token
-    :param db: database session
-    :return: galleries
-    """
-    # Verify that user is logged in
-    verify_token(token)
-    return galleries.get_public_gallery(db, gallery_id=gallery_id)
+        return galleries.get_public_galleries_nouser(db, pattern=pattern)
 
 
 @router.get('/public/{user_id}',

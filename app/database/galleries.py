@@ -26,22 +26,26 @@ def get_gallery_by_title(db: Session, title: str):
         models.Gallery.title == title).first()
 
 
-def get_public_galleries(db: Session, pattern: str, gallery_id: int,
-                         user_id: int):
+def get_public_galleries_by_id(db: Session, gallery_id: int):
+    """
+    Get public galleries that match the pattern and don't belong to user
+    :param db: database session
+    :param gallery_id: id of gallery
+    :return: galleries
+    """
+    return db.query(models.Gallery) \
+        .filter(models.Gallery.private == false(),
+                models.Gallery.id == gallery_id).all()
+
+
+def get_public_galleries_by_pattern(db: Session, pattern: str, user_id: int):
     """
     Get public galleries that match the pattern and don't belong to user
     :param db: database session
     :param pattern: pattern
-    :param gallery_id: id of gallery
     :param user_id: id of user
     :return: galleries
     """
-    if gallery_id is not None and gallery_id != 0:
-        # In case gallery id is defined
-        return db.query(models.Gallery) \
-            .filter(models.Gallery.private == false(),
-                    models.Gallery.id == gallery_id).all()
-
     pattern = pattern.lower()
     galleries = db.query(models.Gallery) \
         .filter(models.Gallery.private == false(),
@@ -72,19 +76,13 @@ def get_all_public_galleries(db: Session, user_id: int):
         .all()
 
 
-def get_public_galleries_nouser(db: Session, pattern: str, gallery_id: int):
+def get_public_galleries_nouser(db: Session, pattern: str):
     """
     Search by gallery id or by pattern
     :param db: database session
     :param pattern: pattern
-    :param gallery_id: id of gallery
     :return: galleries
     """
-    if gallery_id is not None and gallery_id != 0:
-        return db.query(models.Gallery) \
-            .filter(models.Gallery.private == false(),
-                    models.Gallery.id == gallery_id).all()
-
     pattern = pattern.lower()
     galleries = db.query(models.Gallery) \
         .filter(models.Gallery.private == false(),
@@ -128,20 +126,6 @@ def search_gallery_titles(db: Session, q: schemas.Query):
         .order_by(models.Gallery.title) \
         .all()
     return tuples
-
-
-def get_public_gallery(db: Session, gallery_id: int):
-    """
-    Get public gallery by id
-    :param db: database session
-    :param gallery_id: id of gallery
-    :return: gallery
-    """
-    return db.query(models.Gallery) \
-        .filter(
-        models.Gallery.private == false(),
-        models.Gallery.id == gallery_id
-    ).all()
 
 
 def get_user_galleries(db: Session, user_id: int):
