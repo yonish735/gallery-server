@@ -1,11 +1,10 @@
-import os
 import base64
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 
-from ..database import models
+from . import models
 
 
 def send_token(send_to_email: str, token: str):
@@ -15,8 +14,8 @@ def send_token(send_to_email: str, token: str):
     :param token: restoration code
     """
     # Build message and subject
-    message = 'This is your verification code: %s' % token
     subject = 'This is your verification code'
+    message = 'This is your verification code: %s' % token
 
     # Build an email
     from_email = 'yonialbumshare@gmail.com'
@@ -38,7 +37,7 @@ def send_token(send_to_email: str, token: str):
 
 def send_picture(request: models.Download, user: models.User):
     """
-    Send an email with restoration code
+    Send an email with picture
     :param request: request with data to send email with
     :param user: user to send an email to
     """
@@ -55,11 +54,12 @@ Description: {picture.description}\n
 To download the picture please see attachment
 """
     # image has format of data:image/png;base64,aVRBOw0AKg1mL9...
-    # let's parse it to get mimetype and base64-encoded data
+    # Parse it to get mimetype and base64-encoded data
     (data, image) = picture.image.split(';base64,')
-    ext = data.split('/')[1]  # data:image/png;base64
+    ext = data.split('/')[1]  # data:image/png
     image = base64.b64decode(image)
 
+    # Create attachment
     img_attachment = MIMEImage(image, ext)
     img_attachment.add_header('Content-Disposition', 'attachment',
                               filename=picture.filename)
