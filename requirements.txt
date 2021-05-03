@@ -35,6 +35,5 @@ cryptography==3.4.7
 pyjwt==2.0.1
 pycparser==2.20
 cryptography==3.4.7
-jwt==1.2.0
 pycparser==2.20
 passlib==1.7.4

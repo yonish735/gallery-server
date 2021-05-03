@@ -116,7 +116,7 @@ def get_public_galleries_no_pattern(user_id: int,
                                           user_id=user_id)
 
 
-def map_suggestion(s: tuple[str, int]):
+def map_suggestion(s):
     """
     Helper function to map tuple to dictionary
     :param s: tuple of id and text
