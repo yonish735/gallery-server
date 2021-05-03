@@ -51,8 +51,6 @@ def verify_token(token: str):
         if user_id is None:
             raise credentials_exception
         return email, user_id
-    except jwt.ExpiredSignatureError:
-        raise expired_signature
     except:
         raise credentials_exception
 
