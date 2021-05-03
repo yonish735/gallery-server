@@ -80,6 +80,7 @@ def signin(user: schemas.UserLogin,
     if not is_password_correct:
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
+    encoded_jwt = encode_token(db_user)
     try:
         # Create JWT token
         encoded_jwt = encode_token(db_user)
