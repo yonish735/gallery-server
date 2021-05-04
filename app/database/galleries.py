@@ -26,43 +26,7 @@ def get_gallery_by_title(db: Session, title: str):
         models.Gallery.title == title).first()
 
 
-def get_public_galleries_by_id(db: Session, gallery_id: int):
-    """
-    Get public galleries that match the pattern and don't belong to user
-    :param db: database session
-    :param gallery_id: id of gallery
-    :return: galleries
-    """
-    return db.query(models.Gallery) \
-        .filter(models.Gallery.private == false(),
-                models.Gallery.id == gallery_id).all()
-
-
-def get_public_galleries_by_pattern(db: Session, pattern: str, user_id: int):
-    """
-    Get public galleries that match the pattern and don't belong to user
-    :param db: database session
-    :param pattern: pattern
-    :param user_id: id of user
-    :return: galleries
-    """
-    pattern = pattern.lower()
-    galleries = db.query(models.Gallery) \
-        .filter(models.Gallery.private == false(),
-                models.Gallery.user_id != user_id,
-                or_(
-                    or_(models.Gallery.title.ilike(f'%{pattern}%'),
-                        models.Gallery.description.ilike(f'%{pattern}%')),
-                    func.lower((models.Gallery.title + ": " +
-                                models.Gallery.description)) == pattern
-                ),
-                ) \
-        .order_by(models.Gallery.title) \
-        .all()
-    return galleries
-
-
-def get_all_public_galleries(db: Session, user_id: int):
+def get_public_galleries(db: Session, user_id: int):
     """
     Get all public galleries which don't belong to user
     :param db: database session
@@ -74,58 +38,6 @@ def get_all_public_galleries(db: Session, user_id: int):
                 models.Gallery.user_id != user_id) \
         .order_by(models.Gallery.title) \
         .all()
-
-
-def get_public_galleries_nouser(db: Session, pattern: str):
-    """
-    Search by gallery id or by pattern
-    :param db: database session
-    :param pattern: pattern
-    :return: galleries
-    """
-    pattern = pattern.lower()
-    galleries = db.query(models.Gallery) \
-        .filter(models.Gallery.private == false(),
-                or_(
-                    or_(models.Gallery.title.ilike(f'%{pattern}%'),
-                        models.Gallery.description.ilike(f'%{pattern}%')),
-                    func.lower((models.Gallery.title + ": " +
-                                models.Gallery.description)) == pattern
-                ),
-                ) \
-        .order_by(models.Gallery.title) \
-        .all()
-    return galleries
-
-
-def search_gallery_titles(db: Session, q: schemas.Query):
-    """
-    Search gallery titles by query
-    :param db: database session
-    :param q: query
-    :return: titles
-    """
-    user_id = q.user_id
-    q = q.q.lower()
-    tuples = db.query(models.Gallery) \
-        .with_entities(models.Gallery.title + ": " +
-                       models.Gallery.description,
-                       models.Gallery.id) \
-        .filter(
-        models.Gallery.private == false(),
-        models.Gallery.user_id != user_id,
-        or_(
-            or_(
-                models.Gallery.title.contains(q),
-                models.Gallery.description.contains(q)
-            ),
-            (models.Gallery.title + ": " +
-             models.Gallery.description).contains(q)
-        )
-    ) \
-        .order_by(models.Gallery.title) \
-        .all()
-    return tuples
 
 
 def get_user_galleries(db: Session, user_id: int):
@@ -180,10 +92,14 @@ def update_gallery(db: Session, gallery_id: int, gallery: schemas.Gallery):
     :param gallery: gallery data
     :return: gallery
     """
+    # Verify that another gallery with the same title doesn't exist
+    db_gallery_title = get_gallery_by_title(db, gallery.title)
+    if db_gallery_title is not None and db_gallery_title.id != gallery_id:
+        return NameError
     # Find gallery
     db_gallery = get_gallery(db, gallery_id)
     if not db_gallery:
-        return NameError
+        return NotImplementedError
     # Update data
     db_gallery.title = gallery.title
     db_gallery.description = gallery.description

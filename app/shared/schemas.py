@@ -100,12 +100,6 @@ class TokenResponse(BaseModel):
     token: str
 
 
-# Search query
-class Query(BaseModel):
-    q: str
-    user_id: int
-
-
 # Request to download picture
 class Download(BaseModel):
     id: int
