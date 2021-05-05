@@ -6,12 +6,10 @@ from ..shared import models, schemas
 from .users import download_delete_picture
 
 
-def download_picture(db: Session, gallery_id: int, picture_id: int,
-                     requestor_id: int):
+def download_picture(db: Session, picture_id: int, requestor_id: int):
     """
     Create request to download picture
     :param db: database session
-    :param gallery_id: gallery id
     :param picture_id: picture id
     :param requestor_id: requestor id
     :return: id of picture
@@ -21,12 +19,11 @@ def download_picture(db: Session, gallery_id: int, picture_id: int,
         models.Picture.id == picture_id).first()
     if picture is None:
         return {"download": False}
-    owner_id = picture.gallery.user_id
     # Create download request
     download = {
         "requestor_id": requestor_id,
-        "owner_id": owner_id,
-        "gallery_id": gallery_id,
+        "owner_id": picture.gallery.user_id,
+        "gallery_id": picture.gallery.id,
         "picture_id": picture_id,
         "created_at": datetime.utcnow(),
     }

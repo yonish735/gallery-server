@@ -14,14 +14,13 @@ router = APIRouter(
 )
 
 
-@router.get('/{gallery_id}/download/{picture_id}')
-def download_gallery_picture(gallery_id: int,
-                             picture_id: int,
-                             token: str = Depends(oauth2_scheme),
-                             db: Session = Depends(database.get_db)):
+@router.get('/{picture_id}/download/')
+def download_gallery_picture(
+        picture_id: int,
+        token: str = Depends(oauth2_scheme),
+        db: Session = Depends(database.get_db)):
     """
     Download picture of gallery
-    :param gallery_id: id of gallery
     :param picture_id: id of picture
     :param token: JWT token
     :param db: database session
@@ -30,7 +29,6 @@ def download_gallery_picture(gallery_id: int,
     # Verify that user is logged in
     _, user_id = verify_token(token)
     return pictures.download_picture(db,
-                                     gallery_id=gallery_id,
                                      picture_id=picture_id,
                                      requestor_id=user_id)
 
