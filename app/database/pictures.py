@@ -54,7 +54,6 @@ def get_gallery_public_pictures(db: Session, gallery_id: int):
     """
     return db.query(models.Picture).filter(
         models.Gallery.private == false(),
-        models.Picture.private == false(),
         models.Picture.gallery_id == gallery_id).all()
 
 
@@ -116,7 +115,6 @@ def update_picture(db: Session, picture_id: int, picture: schemas.Picture):
     db_picture.description = picture.description
     db_picture.image = picture.image
     db_picture.filename = picture.filename
-    db_picture.private = picture.private
     db.commit()
     # Sync picture from database
     db.refresh(db_picture)

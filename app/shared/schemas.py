@@ -21,20 +21,10 @@ class GalleryCreate(GalleryBase):
     user_id: int
 
 
-# Gallery after creation (it has id)
-class Gallery(GalleryBase):
-    id: int
-    user_id: int
-
-    class Config:
-        orm_mode = True
-
-
 # Base Picture class
 class PictureBase(BaseModel):
     title: str
     description: str
-    private: bool
     image: Optional[str] = None
     filename: Optional[str] = None
 
@@ -48,6 +38,16 @@ class PictureCreate(PictureBase):
 class Picture(PictureBase):
     id: int
     gallery_id: int
+
+    class Config:
+        orm_mode = True
+
+
+# Gallery after creation (it has id)
+class Gallery(GalleryBase):
+    id: int
+    user_id: int
+    pictures: List[Picture] = []
 
     class Config:
         orm_mode = True
@@ -125,8 +125,3 @@ class Token(BaseModel):
 # Data inside token (user name)
 class TokenData(BaseModel):
     username: Optional[str] = None
-
-
-# Search suggestions
-class Suggestion(BaseModel):
-    suggestions: List[Tuple[str, int]]

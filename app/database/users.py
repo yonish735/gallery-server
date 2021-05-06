@@ -131,7 +131,7 @@ def download_delete(db: Session, req_id: str):
     db.commit()
 
 
-def download_delete_picture(db: Session, picture_id: str):
+def download_delete_picture(db: Session, picture_id: int):
     """
     Delete download request in case picture was deleted
     :param db: database session
